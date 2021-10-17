@@ -1,20 +1,43 @@
-from typing import Optional, Set, List, Dict
-
 from fastapi import FastAPI
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel
+from starlette.middleware.cors import CORSMiddleware
+
+
+class MyPostData(BaseModel):
+    name: str
+    mean: str
+
 
 app = FastAPI()
 
+# cors設定
+origins = [
+    "http://localhost:8080"
+]
 
-class Image(BaseModel):
-    url: HttpUrl
-    name: str
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
-@app.post("/images/multiple")
-async def create_multiple_images(images: List[Image]):
-    return images
+test_data = {
+    "pachinko": "玉を弾く遊び",
+    "slot": "リールを回す遊び",
+}
 
-@app.post("/index-weights/")
-async def create_index_weights(weights: Dict[int, float]):
-    return weights
+@app.get("/")
+async def index():
+    return {"message": "Hello World"}
+
+@app.get("/data/")
+async def read_data(key: str):
+    return test_data[key]
+
+@app.post("/data/")
+async def update_data(post_data: MyPostData):
+    test_data[post_data.name] = post_data.mean
+    return {"message": "post success!"}
