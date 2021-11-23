@@ -1,0 +1,12 @@
+// 素のHTML要素（H1やAなど）のための一般的なスタイリング。
+// これらはブラウザからのデフォルトのスタイリングが付属しているので、
+// ここで再定義することができます。
+@import './reset.scss';
+
+@import './animations.scss';
+
+@import './colors.scss';
+
+@import './elevation.scss';
+
+@import './transitions.scss';
