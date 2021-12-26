@@ -37,3 +37,13 @@ def show(id :int, response: Response, db: Session = Depends(get_db)):
         # response.status_code = status.HTTP_404_NOT_FOUND
         # return {'detail':f'Blog with the id {id} is not available'}
     return blog
+
+@app.delete('/blog/{id}', status_code=status.HTTP_204_NO_CONTENT)
+def delete(id: int, db: Session=Depends(get_db)):
+    blog = db.query(models.Blog).filter(models.Blog.id == id)
+    if not blog.first():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'Blog with the id {id} is not found')
+    blog.delete(synchronize_session=False)
+    db.commit()
+    
+    return 'Deletion completed'
