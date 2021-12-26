@@ -5,6 +5,8 @@ name = "pypi"
 
 [packages]
 sqlalchemy = "*"
+passlib = "*"
+bcrypt = "*"
 
 [dev-packages]
 

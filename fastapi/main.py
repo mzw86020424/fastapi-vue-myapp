@@ -1,9 +1,10 @@
-from fastapi import FastAPI, Depends, status, Response, HTTPException
-from schemas import Blog, ShowBlog, User
-import models
 from database import Base, engine, sessionLocal
+from fastapi import FastAPI, Depends, status, Response, HTTPException
+from hashing import Hash
+from schemas import Blog, ShowBlog, User
 from sqlalchemy.orm import Session
 from typing import List
+import models
 
 app = FastAPI()
 
@@ -16,6 +17,17 @@ def get_db():
         yield db
     finally:
         db.close()
+
+@app.post('/user')
+def create_user(request: User, db: Session = Depends(get_db)):
+    new_user = models.User(
+        name=request.name, 
+        email=request.email,
+        password=Hash.bcrypt(request.password))
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return new_user
 
 @app.post('/blog', status_code=status.HTTP_201_CREATED)
 def create(blog: Blog, db: Session = Depends(get_db)):
@@ -58,11 +70,3 @@ def delete(id: int, db: Session=Depends(get_db)):
     db.commit()
     
     return 'Deletion completed'
-
-@app.post('/user')
-def create_user(request: User, db: Session = Depends(get_db)):
-    new_user = models.User(name=request.name, email=request.email, password=request.password)
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    return new_user
