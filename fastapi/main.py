@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Depends, status, Response, HTTPException
-from schemas import Blog, ShowBlog
+from schemas import Blog, ShowBlog, User
 import models
 from database import Base, engine, sessionLocal
 from sqlalchemy.orm import Session
@@ -58,3 +58,11 @@ def delete(id: int, db: Session=Depends(get_db)):
     db.commit()
     
     return 'Deletion completed'
+
+@app.post('/user')
+def create_user(request: User, db: Session = Depends(get_db)):
+    new_user = models.User(name=request.name, email=request.email, password=request.password)
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return new_user
