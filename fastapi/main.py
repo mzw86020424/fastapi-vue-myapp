@@ -1,7 +1,7 @@
 from database import Base, engine, sessionLocal
 from fastapi import FastAPI, Depends, status, Response, HTTPException
 from hashing import Hash
-from schemas import Blog, ShowBlog, User
+from schemas import Blog, ShowBlog, User, ShowUser
 from sqlalchemy.orm import Session
 from typing import List
 import models
@@ -28,6 +28,13 @@ def create_user(request: User, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
     return new_user
+
+@app.get('/user/{id}', response_model=ShowUser)
+def get_user(id: int, db: Session=Depends(get_db)):
+    user = db.query(models.User).filter(models.User.id ==id).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'User with the id {id} is not available')
+    return user
 
 @app.post('/blog', status_code=status.HTTP_201_CREATED)
 def create(blog: Blog, db: Session = Depends(get_db)):
