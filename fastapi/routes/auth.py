@@ -4,6 +4,7 @@ from hashing import Hash
 from sqlalchemy.orm import Session
 import models
 import schemas
+import tokens
 
 router = APIRouter(
     tags = ['Auth']
@@ -19,4 +20,6 @@ def login(request: schemas.Login, db: Session=Depends(get_db)):
     if not Hash.verify(request.password, user.password):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Incorrect Password')
 
-    return user
+    access_token = tokens.create_access_token({"sub": user.email})
+
+    return {"access_token": access_token, "token_type": "bearer"}
