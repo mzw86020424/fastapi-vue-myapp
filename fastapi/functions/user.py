@@ -4,12 +4,12 @@ from sqlalchemy.orm import Session
 import models
 import schemas
 
-
 def create_user(request: schemas.User, db: Session):
     new_user = models.User(
         name=request.name, 
         email=request.email,
-        password=Hash.bcrypt(request.password))
+        password=Hash.bcrypt(request.password)
+    )
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
