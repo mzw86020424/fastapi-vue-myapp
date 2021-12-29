@@ -1,10 +1,10 @@
 from database import get_db
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from functions import blog
-from schemas import Blog, ShowBlog
+from schemas import Blog, ShowBlog, User
 from sqlalchemy.orm import Session
 from typing import List
-import models
+import models, oauth2
 
 router = APIRouter(
     prefix='/blog',
@@ -16,7 +16,7 @@ def create(request: Blog, db: Session = Depends(get_db)):
     return blog.create(request, db)
 
 @router.get('/', response_model=List[ShowBlog])
-def all_fetch(db: Session = Depends(get_db)):
+def all_fetch(db: Session = Depends(get_db), current_user: User = Depends(oauth2.get_current_user)):
     return blog.get_all(db)
 
 @router.get('/{id}', status_code=status.HTTP_200_OK, response_model=ShowBlog)
