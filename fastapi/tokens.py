@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta
+from functions.user import get_user
 from jose.exceptions import JWTError
 from schemas import TokenData
+from sqlalchemy.orm import Session
 from jose import jwt
 from typing import Optional
 
@@ -20,13 +22,15 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     
     return encoded_jwt
 
-def verify_token(token: str, credentials_exception):
+def verify_token(token: str, credentials_exception, db: Session):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
+        id: int = payload.get("id")
         if email is None:
             raise credentials_exception
         token_data = TokenData(email=email)
     except JWTError:
         raise credentials_exception
-    return token_data
+    user = get_user(id, db)
+    return user
